@@ -39,6 +39,9 @@ public:
 
     // 获取牌堆大小
     int Size() const; 
+
+    // 洗牌
+    void Shuffle();
 };
 
 // 生成一张新牌
