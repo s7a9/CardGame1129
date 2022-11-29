@@ -1,6 +1,8 @@
 #ifndef CARDS_H
 #define CARDS_H
 
+#include <vector>
+
 enum card_type_t { // 卡牌类型
     ct_null, // 空卡牌
     ct_attack, // 普通攻击
@@ -32,16 +34,19 @@ public:
     void Remove(card_t card); 
 
     // 获取指定下标的一张牌
-    card_t& Get(int index) const; 
+    card_t& Get(int index); 
 
     // 获取指定下标的一张牌
-    card_t& operator[](int index) const; 
+    card_t& operator[](int index); 
 
     // 获取牌堆大小
     int Size() const; 
 
     // 洗牌
     void Shuffle();
+
+private:
+    std::vector<card_t> cards;
 };
 
 // 生成一张新牌
