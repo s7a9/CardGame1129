@@ -1,5 +1,6 @@
 #include <vector>
 #include <cstdlib>
+#include <algorithm>
 #include "Cards.h"
 
 bool cmp_cards(const card_t& c1, const card_t& c2) {
@@ -27,7 +28,7 @@ void CardList::Remove(card_t card) {
 }
 
 card_t& CardList::Get(int index) {
-    return cards[index];
+    return cards.at(index);
 }
 
 card_t& CardList::operator[](int index) {
@@ -42,7 +43,7 @@ void CardList::Shuffle() {
     int n = Size(), l;
     for (int i = n - 1; i >= 0; --i) {
         l = rand() % (i + 1);
-        if (l != i) swap(cards[l], cards[i]);
+        if (l != i) std::swap(cards[l], cards[i]);
     }
 }
 

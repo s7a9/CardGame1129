@@ -4,7 +4,7 @@
 using namespace std;
 
 void RunGame() {
-
+    
 }
 
 void Fight() {

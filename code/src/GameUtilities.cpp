@@ -16,8 +16,8 @@ std::ostream& operator<<(std::ostream& out, console_color_t clr) {
     return out;
 }
 
-void pause() {
-    getch();
+int pause() {
+    return getch();
 }
 
 void pos(int line, int col) {

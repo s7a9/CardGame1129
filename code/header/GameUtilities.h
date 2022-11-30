@@ -22,7 +22,8 @@ const console_color_t green = color(10, 0);
 std::ostream& operator<<(std::ostream& out, console_color_t clr);
 
 // 暂停，按任意键继续
-void pause();
+// 返回按下哪个键
+int pause();
 
 // 光标移到指定位置
 void pos(int line, int col);

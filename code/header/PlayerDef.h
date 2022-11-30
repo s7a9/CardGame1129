@@ -18,6 +18,7 @@ struct player_t {
 // 游戏信息结构体
 struct game_status_t {
     int money; // 玩家的金钱数
+    int turn; // 回合数
     player_t player, enemy;
 };
 
