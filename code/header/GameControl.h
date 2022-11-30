@@ -10,7 +10,7 @@ void RunGame();
 void Fight(); 
 
 // 结算战斗
-void HandleResult(); 
+int HandleResult(); 
 
 // 进入商店界面
 void Shopping(); 
