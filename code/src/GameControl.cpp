@@ -5,8 +5,16 @@ using namespace std;
 
 game_status_t game_status;
 
+const card_t player_inital_cards[] = {
+    {ct_attack, 2, 0}, {ct_attack, 2, 0}, {ct_attack, 2, 0}, 
+};
+
+void SpawnEnemyCardBag() {
+    
+}
+
 void RunGame() {
-    while (true) {
+    while (false) {
         // Fight()
         // 如果HandleResult返回0 显示退出信息+退出
         // Shopping()
@@ -15,7 +23,6 @@ void RunGame() {
 
 void Fight() {
     // 初始化 game_status：洗牌、重置血量
-
     while (true) {
         // 玩家回合 发牌、计算效果
         while (true) {

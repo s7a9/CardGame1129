@@ -11,6 +11,12 @@ void CardList::Add(card_t item) {
     cards.push_back(item);
 }
 
+void CardList::AddCards(card_t items[], int n) {
+    for (int i = 0; i < n; i++) {
+        cards.push_back(items[i]);
+    }
+}
+
 void CardList::Remove(int index) {
     if (index < 0 || index >= Size()) {
         return;
