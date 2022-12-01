@@ -5,6 +5,10 @@
 
 using namespace std;
 
+void InitIO() {
+    system("chcp 65001");
+}
+
 console_color_t color(int text_color, int back_color) {
     return (console_color_t){text_color, back_color};
 }

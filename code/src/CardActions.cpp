@@ -17,7 +17,7 @@ void PlayCard(card_t card, player_t& p1, player_t& p2) {
         case ct_defense: p1.defense_point += card.value; break;
         case ct_poison: p2.poison_point += card.value; break;
         case ct_pierce: p2.health_point -= card.value; break;
-        case ct_heal: p1.health_point += card.value; break;
+        case ct_heal: p1.health_point = min(p1.max_hp, p1.health_point + card.value); break;
         case ct_putrefy: p1.poison_point = 0; break;
         case ct_spawn:
             for (int i = 1; i <= card.value; i++)

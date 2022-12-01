@@ -5,6 +5,7 @@
 
 // 打牌者结构体
 struct player_t {
+    int max_hp; // 最大血量
     int health_point; // 血量
     int action_point; // 行动点
     int poison_point; // 毒性

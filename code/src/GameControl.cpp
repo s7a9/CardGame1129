@@ -8,6 +8,8 @@ game_status_t game_status;
 
 const card_t player_inital_cards[] = {
     {ct_attack, 2, 0}, {ct_attack, 2, 0}, {ct_attack, 2, 0}, 
+    {ct_defense, 2, 1}, {ct_poison, 2, 1}, {ct_pierce, 2, 2},
+    {ct_heal, 2, 1}, {ct_putrefy, 0, 2}
 };
 
 const size_t player_inital_cards_n = sizeof(player_inital_cards) / sizeof(card_t);
@@ -37,10 +39,14 @@ void SpawnEnemyCardBag() {
 }
 
 void RunGame() {
+    InitIO();
+    cls();
     for (int i = 0; i < player_inital_cards_n; ++i) {
         game_status.player.bag_cards.Add(player_inital_cards[i]);
     }
-    while (false) {
+    game_status.player.level = 1;
+    game_status.player.max_hp = game_status.player.health_point = get_hp_by_level(1);
+    while (true) {
         // Fight()
         // 如果HandleResult返回0 显示退出信息+退出
         // Shopping()
@@ -57,10 +63,13 @@ void prepare_turn(player_t* p) {
         p->bag_cards.Remove(0);
     }
     p->defense_point -= p->poison_point;
-    p->poison_point--;
-    p->health_point -= p->defense_point;
+    if (p->poison_point > 0) p->poison_point--;
+    if (p->defense_point < 0) {
+        p->health_point += p->defense_point;
+        p->defense_point = 0;
+    }
     if (p->health_point <= 0) return;
-    p->action_point += 1 + p->level / 2;
+    p->action_point += 2 + p->level / 2;
     p->action_point = max(p->action_point, 0);
 }
 
@@ -73,8 +82,16 @@ void Fight() {
     choice = MakeAChoice(enemy_level_options, 3);
     game_status.enemy.level = max(1, game_status.player.level + choice - 2);
     SpawnEnemyCardBag();
-    player_t* p;
+    game_status.enemy.max_hp = game_status.enemy.health_point = 
+        get_hp_by_level(game_status.enemy.level);
+    game_status.player.bag_cards.Shuffle();
+    game_status.enemy.bag_cards.Shuffle();
+    prepare_turn(&(game_status.player));
+    prepare_turn(&(game_status.enemy));
+    game_status.player.action_point = game_status.enemy.action_point = 0;
+    game_status.turn = 1;
     while (true) {
+        player_t* p;
         // 玩家回合 发牌、计算效果
         prepare_turn(p = &(game_status.player));
         if (p->health_point <= 0) return;
@@ -87,6 +104,7 @@ void Fight() {
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
+        p->action_point = 0;
         // 电脑回合 发牌、计算效果
         prepare_turn(p = &(game_status.enemy));
         if (p->health_point <= 0) return;
@@ -96,16 +114,18 @@ void Fight() {
             choice--;
             p->bag_cards.Add(p->hand_cards[choice]);
             p->hand_cards.Remove(choice);
+            pause();
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
+        p->action_point = 0;
     }
 }
 
 int HandleResult() {
     static int cost=20;
     int choice_rebirth;
-    const char *options="复活请输入1 原地去世请输入0";
+    const char *options="复活请输入1 原地去世请输入0: ";
     if (game_status.enemy.health_point<=0)
         return 6;
     else if (game_status.player.health_point<=0){
@@ -198,15 +218,15 @@ int PlayerMove() {
     DisplayInfo(game_status);
     while (true) {
         choice=MakeAChoice (player_choice,n);
+        if (choice==0) return 0;
         if (game_status.player.hand_cards[choice - 1].ap_cost <= game_status.player.action_point)
             break;
         out(0, 0) << "行动力不足!";
     }
-    if (choice==0) return 0;
-    int w=choice;
+    int w=game_status.player.hand_cards[choice - 1].type;
     cls();
-    pos(25,55);
-    switch (w)
+    pos(10,55);
+    switch (w)  
     {
         case 1:cout<<red<<"接好了，这是我全力的一击！"<<endl<<white<<"对方受到了攻击！";break;
         case 2:cout<<yellow<<"啊，这是守护的力量！"<<endl<<white<<"您的护盾增加了！";break;
@@ -218,13 +238,36 @@ int PlayerMove() {
         case 8:cout<<green<<"你想到过被自己的力量伤害的一天吗？"<<endl<<white<<"您偷盗了对方的卡牌！";break;
         case 9:cout<<blue<<"别硬撑了，你其实很疲惫了吧"<<endl<<white<<"对方受到了疲惫！";break;
     }
+    cout << "任意键继续:";
+    pause();
     PlayCard(game_status.player.hand_cards[choice -1],game_status.player , game_status.enemy) ;
-    return w;
+    return choice;
 }
 
 int EnemyMove() {
     // 电脑自动选择
-    if (game_status.enemy.hand_cards.Size())
-        return 1;
+    player_t& enemy = game_status.enemy;
+    int n = enemy.hand_cards.Size();
+    if (n == 0) return 0;
+    for (int i = 0; i < n; ++i) {
+        if (enemy.hand_cards[i].ap_cost <= enemy.action_point) {
+            PlayCard(game_status.enemy.hand_cards[i], game_status.enemy, game_status.player);
+            DisplayInfo(game_status);
+            pos(25, 5);
+            switch (game_status.enemy.hand_cards[i].type)  
+            {
+                case 1:cout<<white<<"您受到了攻击！";break;
+                case 2:cout<<white<<"对方的护盾增加了！";break;
+                case 3:cout<<white<<"您中毒了！";break;
+                case 4:cout<<white<<"您受到了穿刺攻击！";break;
+                case 5:cout<<white<<"对方的生命值恢复了！";break;
+                case 6:cout<<white<<"对方的负面效果被清除！";break;
+                case 7:cout<<white<<"对方收获了新的卡牌！";break;
+                case 8:cout<<white<<"对方偷盗了对方的卡牌！";break;
+                case 9:cout<<white<<"您感到疲惫！";break;
+            }
+            return i + 1;
+        }
+    }
     return 0;
 }

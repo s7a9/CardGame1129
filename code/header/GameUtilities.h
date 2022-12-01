@@ -25,6 +25,8 @@ const console_color_t pink = color(13, 0);
 
 std::ostream& operator<<(std::ostream& out, console_color_t clr);
 
+void InitIO();
+
 // 暂停，按任意键继续
 // 返回按下哪个键
 int pause();
