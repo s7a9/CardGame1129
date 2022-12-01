@@ -10,7 +10,7 @@ enum card_type_t { // 卡牌类型
     ct_poison,  // 投毒
     ct_pierce, // 穿刺
     ct_heal, // 回复
-    ct_putrefy, // 净化
+    ct_putrefy, // 净化ba
     ct_spawn, // 无中生有
     ct_steal, // 顺手牵羊
     ct_fatigue, // 疲劳

@@ -50,7 +50,55 @@ int HandleResult() {
 
 void Shopping() {
     // 随机三张卡牌/升级
-    // 让玩家选择
+
+    card_t Ncard[3];
+    srand((unsigned)time(NULL));
+    for (int i = 0; i <= 2; i++) {
+        Ncard[i] = GetNewCard(rand() % 10, level);
+        cout << card_type_names[Ncard[i].type] << ' 卡牌的值:' << Ncard[i].value << ' 卡牌消耗的行动点:' << Ncard[i].ap_cost << endl;
+    }
+    //0
+    char* choices[5] = { "不选择","购买卡牌一(花5块钱)","购买卡牌二(花6块钱)","购买卡牌三(花7块钱)","等级+1(花6块钱)" };
+    int choice_flag[5] = { 5,1,1,1,1 };
+    int flag0 = 0;
+    while (1) {
+        cout << "你要买什么:";
+        int choiceNcard0 = MakeAChoice(chioces, 4);
+        switch (choiceNcard0) {
+        case 0:
+            if (choice_flag[choiceNcard0] > 0) {
+                flag0 = 1; choice_flag[choiceNcard0]--;
+            }
+            else { break; }
+            break;
+        case 1:
+            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 5) {
+                player.bag_cards.Add(Ncard[0]); game_status.money -= 5; choice_flag[choiceNcard0]--;
+            }
+            else { break; }
+            break;
+        case 2:
+            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 6) {
+                player.bag_cards.Add(Ncard[1]); game_status.money -= 6; choice_flag[choiceNcard0]--;
+            }
+            else { break; }
+            break;
+        case 3:
+            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 7) {
+                player.bag_cards.Add(Ncard[2]); game_status.money -= 7; choice_flag[choiceNcard0]--;
+            }
+            else { break; }
+            break;
+        case 4:
+            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 6) {
+                player.level++; game_status.money -= 6; choice_flag[choiceNcard0]--;
+            }
+            else { break; }
+            break;
+        default: break;
+        }
+        if (flag0 == 1) { break; }
+    }
 }
 
 int PlayerMove() {
