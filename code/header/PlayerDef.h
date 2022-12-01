@@ -9,7 +9,6 @@ struct player_t {
     int action_point; // 行动点
     int poison_point; // 毒性
     int defense_point; // 盾
-    int fatigue_point;  // 疲劳
     int level; // 等级
     CardList hand_cards; // 手牌数组
     CardList bag_cards; // 牌库数组
