@@ -3,6 +3,19 @@
 
 #include <vector>
 
+const char* card_type_names[] = {
+    "???",
+    "攻击",
+    "加盾",
+    "投毒",
+    "穿刺",
+    "回复",
+    "净化",
+    "无中生有",
+    "顺手牵羊",
+    "头晕目眩",
+};
+
 enum card_type_t { // 卡牌类型
     ct_null, // 空卡牌
     ct_attack, // 普通攻击

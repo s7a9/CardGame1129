@@ -19,6 +19,8 @@ const console_color_t red = color(12, 0);
 
 const console_color_t green = color(10, 0);
 
+const console_color_t yellow = color(14, 0);
+
 std::ostream& operator<<(std::ostream& out, console_color_t clr);
 
 // 暂停，按任意键继续
