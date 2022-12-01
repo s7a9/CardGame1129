@@ -16,6 +16,7 @@ void DisplayInfo(game_status_t& game_status) {
 
 void DisplayPlayerInfo(player_t& info) {
     // 打印血量、手牌等等战斗信息
+    out(5,5)<<"急着打败魔王就回老家结婚的勇者";
     int i, t;
     out(6,5)<<white<<"level"<<info.level<<".";
     out(7,5)<<red<<"血量"<<white<<info.health_point<<'/'<<info.max_hp;
@@ -39,6 +40,7 @@ void DisplayPlayerInfo(player_t& info) {
 
 void DisplayEnemyInfo(player_t& info) {
     // 打印血量、手牌等等战斗信息
+    out(5,65)<<"没钱随份子所以要全力阻止勇者的魔王"
     int i,t;
     out(6,65)<<white<<"level"<<info.level<<".";
     out(7,65)<<red<<"血量"<<white<<info.health_point<<'/'<<info.max_hp;
