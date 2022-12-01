@@ -22,7 +22,7 @@ int pause() {
 
 void pos(int line, int col) {
     COORD p;
-    p.X = line, p.Y = col;
+    p.X = col, p.Y = line;
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), p);
 }
 

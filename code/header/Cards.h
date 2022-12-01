@@ -8,7 +8,7 @@ enum card_type_t { // 卡牌类型
     ct_attack, // 普通攻击
     ct_defense, // 加盾
     ct_poison,  // 投毒
-    ct_pierece, // 穿刺
+    ct_pierce, // 穿刺
     ct_heal, // 回复
     ct_putrefy, // 净化
     ct_spawn, // 无中生有
