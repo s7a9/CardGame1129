@@ -87,6 +87,36 @@ void Fight() {
 }
 
 int HandleResult() {
+    static int cost=20;
+    int choice_rebirth;
+    char *options="复活请输入1 原地去世请输入0";
+    if (game_status.enemy.health_point<=0)
+        return 6;
+    else if (game_status.player.health_point<=0){
+        if (game_status.money<cost) {
+            cout<<"穷光蛋，你输了！！！"<<endl;
+            return 0;
+        }
+        else {
+            cout << "所需要的金币为：" << cost <<"你拥有的金币为" << game_status.money;
+            choice_rebirth=MakeAChoice(options,1);
+            
+            if (choice_rebirth==0) {
+                cout <<"你输了！！！"<<endl;
+                 return 0;
+            }
+            if (choice_rebirth==1) {
+                cls();
+                cout <<"按任意键继续游戏"<<endl; 
+                pause();
+                game_status.player.healt_point=get_hp_by_level(game_status.player.level);
+                game_status.money-=cost;
+                cost*=2;
+                return 1;
+            }
+        }
+        
+    }
     // 看看谁的血量<=0
     // 使用一定金币复活
     // 可以定义static int cost; 让复活需要的金币递增
@@ -146,7 +176,13 @@ void Shopping() {
 }
 
 int PlayerMove() {
-    // 让玩家选择
+    char*player_choice="输入你想打出的牌,输入0结束出牌";
+    int choice,n=game_status.player.hand_cards.Size();
+    
+    choice=MakeAChioce (player_chioce,n);
+    if (choice==0) return 0;
+    else PlayCard(game_status.player.hand_cards[choice -1],game_status.player , game_status.enemy) ;
+         // 让玩家选择
 }
 
 int EnemyMove() {
