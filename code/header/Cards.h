@@ -61,6 +61,9 @@ public:
     // 洗牌
     void Shuffle();
 
+    // 清除全部
+    void Clear();
+
 private:
     std::vector<card_t> cards;
 };

@@ -53,4 +53,8 @@ void CardList::Shuffle() {
     }
 }
 
+void CardList::Clear() {
+    cards.clear();
+}
+
 using namespace std;

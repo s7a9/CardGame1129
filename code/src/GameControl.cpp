@@ -10,12 +10,14 @@ const card_t player_inital_cards[] = {
     {ct_attack, 2, 0}, {ct_attack, 2, 0}, {ct_attack, 2, 0}, 
 };
 
+const size_t player_inital_cards_n = sizeof(player_inital_cards) / sizeof(card_t);
+
 int get_hp_by_level(int level) {
     return 10 + 5 * level;
 }
 
-int get_max_hand_by_level() {
-    
+int get_max_hand_by_level(int level) {
+    return min(10, 1 + level);
 }
 
 card_t GetNewCard(card_type_t type, int level) {
@@ -26,10 +28,18 @@ card_t GetNewCard(card_type_t type, int level) {
     return Card(type, type_basic_value[type] + level, type_ap_cost[type]);
 }
 
+// 生成电脑的牌组，暂定复制玩家的牌组
 void SpawnEnemyCardBag() {
+    int n = game_status.player.bag_cards.Size();
+    for (int i = 0; i < n; i++) {
+        game_status.enemy.bag_cards.Add(game_status.player.bag_cards[i]);
+    }
 }
 
 void RunGame() {
+    for (int i = 0; i < player_inital_cards_n; ++i) {
+        game_status.player.bag_cards.Add(player_inital_cards[i]);
+    }
     while (false) {
         // Fight()
         // 如果HandleResult返回0 显示退出信息+退出
@@ -45,21 +55,23 @@ void Fight() {
     int choice;
     char* enemy_level_options[] = {"低一级", "相同等级", "高一级"};
     choice = MakeAChoice(enemy_level_options, 3);
-    switch (choice) {
-    case 1:
-        game_status.enemy.level = max(1, game_status.player.level - 1);
-        break;
-    case 3:
-        game_status.enemy.level = game_status.player.level + 1;
-        break;
-    default:
-        game_status.enemy.level = game_status.player.level;
-        break;
-    }
+    game_status.enemy.level = max(1, game_status.player.level + choice - 2);
     SpawnEnemyCardBag();
+    player_t* p;
     while (true) {
         // 玩家回合 发牌、计算效果
-
+        p = &(game_status.player);
+        int draw_cards_n = 2 + p->level / 2;
+        for (int i = 0; p->bag_cards.Size() && i < draw_cards_n; ++i) {
+            p->hand_cards.Add(p->bag_cards[0]);
+            p->bag_cards.Remove(0);
+        }
+        p->defense_point -= p->poison_point;
+        p->poison_point--;
+        p->health_point -= p->defense_point;
+        if (p->health_point <= 0) return;
+        p->action_point += 1 + p->level / 2;
+        p->action_point = max(p->action_point, 0);
         while (true) {
             // 玩家打牌
             
