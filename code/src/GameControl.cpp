@@ -18,11 +18,15 @@ void RunGame() {
         // Fight()
         // 如果HandleResult返回0 显示退出信息+退出
         // Shopping()
+        Fight();
+        if (HandleResult() == 0) return;
+        Shopping();
     }
 }
 
 void Fight() {
     // 初始化 game_status：洗牌、重置血量
+    const char* enemy_level_options[] = {"相同等级"};
     while (true) {
         // 玩家回合 发牌、计算效果
         while (true) {
