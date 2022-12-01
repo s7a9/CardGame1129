@@ -229,12 +229,13 @@ int PlayerMove() {
     switch (w)  
     {
         case 1:cout<<red<<"接好了，这是我全力的一击！"<<endl<<white<<"对方受到了攻击！";break;
-        case 2:cout<<yellow<<"啊，这是守护的力量！"<<endl<<white<<"您的护盾增加了！";break;
-        case 3:cout<<green<<"看见了吗，这是我一路走来背负的罪恶啊。。。"<<endl<<white<<"对方中毒了！";break;
-        case 4:cout<<red<<"我们都是如此脆弱啊"<<endl<<white<<"对方受到了穿刺攻击！";break;
-        case 5:cout<<pink<<"感受到了哦，爱的力量"<<endl<<white<<"您的生命值恢复了！";break;
+        case 2:cout<<yellow<<"你是不会懂的，我们彼此守护的力量！"<<endl<<white<<"您的护盾增加了！";break;
+        case 3:cout<<green<<"沾染上吧，这是我一路走来背负的罪恶啊。。。"<<endl<<white<<"对方中毒了！";break;
+        case 4:cout<<white<<"我啊，曾经也是一个人的盾牌呢"<<endl<<"可是啊，要是当时我守护住了就好了"<<endl
+            <<red<<"轮到你来尝尝了，那种用尽全力却无法守护的痛啊啊啊啊"<<endl<<white<<"对方受到了穿刺攻击！";break;
+        case 5:cout<<pink<<"原来你一直在我身边治愈我啊，吾爱"<<endl<<white<<"您的生命值恢复了！";break;
         case 6:cout<<blue<<"圣光啊，洗涤我身上的不详吧"<<endl<<white<<"您的负面效果被清除！";break;
-        case 7:cout<<yellow<<"言已至此，感受无中生有的奇迹吧"<<endl<<white<<"您收获了新的卡牌！";break;
+        case 7:cout<<yellow<<"言已至此，【made in heaven】"<<endl<<white<<"您收获了新的卡牌！";break;
         case 8:cout<<green<<"你想到过被自己的力量伤害的一天吗？"<<endl<<white<<"您偷盗了对方的卡牌！";break;
         case 9:cout<<blue<<"别硬撑了，你其实很疲惫了吧"<<endl<<white<<"对方受到了疲惫！";break;
     }
