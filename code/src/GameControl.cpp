@@ -1,5 +1,6 @@
 #include "GameControl.h"
 #include "GameIO.h"
+#include "GameUtilities.h"
 
 using namespace std;
 
@@ -26,11 +27,22 @@ void RunGame() {
 
 void Fight() {
     // 初始化 game_status：洗牌、重置血量
-    const char* enemy_level_options[] = {"相同等级"};
+    int choice;
+    char* enemy_level_options[] = {"低一级", "相同等级", "高一级"};
+    choice = MakeAChoice(enemy_level_options, 3);
+    switch (choice) {
+    case 1:
+        game_status.enemy.level = max(1, game_status.player)
+        break;
+    
+    default:
+        break;
+    }
     while (true) {
         // 玩家回合 发牌、计算效果
         while (true) {
             // 玩家打牌
+            
         }
         // 血量<=0寄
 
