@@ -3,34 +3,21 @@
 
 #include <vector>
 
-const char* card_type_names[] = {
-    "???",
-    "攻击",
-    "加盾",
-    "投毒",
-    "穿刺",
-    "回复",
-    "净化",
-    "无中生有",
-    "顺手牵羊",
-    "头晕目眩",
-};
+#define ct_null 0
+#define ct_attack 1
+#define ct_defense 2
+#define ct_poison 3
+#define ct_pierce 4
+#define ct_heal 5
+#define ct_putrefy 6
+#define ct_spawn 7
+#define ct_steal 8
+#define ct_fatigue 9
 
-enum card_type_t { // 卡牌类型
-    ct_null, // 空卡牌
-    ct_attack, // 普通攻击
-    ct_defense, // 加盾
-    ct_poison,  // 投毒
-    ct_pierce, // 穿刺
-    ct_heal, // 回复
-    ct_putrefy, // 净化ba
-    ct_spawn, // 无中生有
-    ct_steal, // 顺手牵羊
-    ct_fatigue, // 疲劳
-};
+const char* get_card_name(int i);
 
 struct card_t { // 卡牌结构体
-    card_type_t type; // 卡牌类型
+    int type; // 卡牌类型
     int value; // 卡牌的值
     int ap_cost; // 卡牌消耗的行动点
 };
@@ -69,6 +56,6 @@ private:
 };
 
 // 生成一张新牌
-card_t Card(card_type_t type, int value, int cost);
+card_t Card(int type, int value, int cost);
 
 #endif //CARDS_H

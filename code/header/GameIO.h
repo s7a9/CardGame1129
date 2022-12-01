@@ -15,11 +15,11 @@ void DisplayEnemyInfo(player_t& info);
 // 让用户做选择，列出每个选项的信息
 // options：字符串的数组，每个选项的文字
 // n_choice：选项的个数
-int MakeAChoice(char* options[], int n_choice);
+int MakeAChoice(const char* options[], int n_choice);
 
 // 让用户做选择，只有一条说明
 // hint：该选择的提示
 // n_choice：选项的个数
-int MakeAChoice(char* hint, int n_choice);
+int MakeAChoice(const char* hint, int n_choice);
 
 #endif //GAMEIO_H

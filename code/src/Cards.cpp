@@ -3,8 +3,25 @@
 #include <algorithm>
 #include "Cards.h"
 
+const char* card_type_names[] = {
+    "???",
+    "攻击",
+    "加盾",
+    "投毒",
+    "穿刺",
+    "回复",
+    "净化",
+    "无中生有",
+    "顺手牵羊",
+    "头晕目眩",
+};
+
 bool cmp_cards(const card_t& c1, const card_t& c2) {
     return c1.type == c2.type && c1.value == c2.value && c1.ap_cost == c2.ap_cost;
+}
+
+const char* get_card_name(int i) {
+    return card_type_names[i];
 }
 
 void CardList::Add(card_t item) {
@@ -55,6 +72,10 @@ void CardList::Shuffle() {
 
 void CardList::Clear() {
     cards.clear();
+}
+
+card_t Card(int type, int value, int cost) {
+    return (card_t){type, value, cost};
 }
 
 using namespace std;
