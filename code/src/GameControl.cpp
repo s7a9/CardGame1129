@@ -137,7 +137,7 @@ void Shopping() {
     int flag0 = 0;
     while (1) {
         cout << "你要买什么:";
-        int choiceNcard0 = MakeAChoice(chioces, 4);
+        int choiceNcard0 = MakeAChoice(choices, 4);
         switch (choiceNcard0) {
         case 0:
             if (choice_flag[choiceNcard0] > 0) {
