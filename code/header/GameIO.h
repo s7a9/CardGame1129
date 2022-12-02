@@ -3,6 +3,9 @@
 
 #include "PlayerDef.h"
 
+// 展示标题画面
+void DisplayTitle(game_status_t& status);
+
 // 打印全部信息
 void DisplayInfo(game_status_t& game_status);
 

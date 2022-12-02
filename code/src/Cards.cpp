@@ -13,7 +13,7 @@ const char* card_type_names[] = {
     "净化",
     "无中生有",
     "顺手牵羊",
-    "头晕目眩",
+    "疲劳",
 };
 
 bool cmp_cards(const card_t& c1, const card_t& c2) {

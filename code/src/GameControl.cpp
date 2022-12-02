@@ -14,11 +14,11 @@ const card_t player_inital_cards[] = {
 
 const size_t player_inital_cards_n = sizeof(player_inital_cards) / sizeof(card_t);
 
-int get_hp_by_level(int level) {
+inline int get_hp_by_level(int level) {
     return 10 + 5 * level;
 }
 
-int get_max_hand_by_level(int level) {
+inline int get_max_hand_by_level(int level) {
     return min(10, 1 + level);
 }
 
@@ -30,12 +30,50 @@ card_t GetNewCard(int type, int level) {
     return Card(type, type_basic_value[type] + level, type_ap_cost[type]);
 }
 
-// 生成电脑的牌组，暂定复制玩家的牌组
-void SpawnEnemyCardBag() {
-    int n = game_status.player.bag_cards.Size();
+// 生成电脑，暂定复制玩家的牌组
+inline void SpawnEnemy() {
+    game_status.enemy.bag_cards.Clear();
+    int n = game_status.player.bag_cards.Size(), choice;
+    const char* enemy_level_options[] = {"低一级", "相同等级", "高一级"};
+    cls();
+    out(10, 5) << "您的等级是" << game_status.player.level;
+    out(11, 5) << "下一步想要挑战敌人的难度是：";
+    choice = MakeAChoice(enemy_level_options, 3);
+    game_status.enemy.level = max(1, game_status.player.level + choice - 2);
     for (int i = 0; i < n; i++) {
         game_status.enemy.bag_cards.Add(game_status.player.bag_cards[i]);
     }
+    game_status.enemy.max_hp = game_status.enemy.health_point = 
+        get_hp_by_level(game_status.enemy.level);
+    game_status.enemy.poison_point = game_status.enemy.defense_point = 0;
+}
+
+// 夺取电脑卡牌
+void GetEnemyCard() {
+    CardList& ecl = game_status.enemy.bag_cards;
+    int n = game_status.enemy.hand_cards.Size();
+    while (n--) {
+        ecl.Add(game_status.enemy.hand_cards[0]);
+        game_status.enemy.hand_cards.Remove(0);
+    }
+    if (ecl.Size() == 0) return;
+    cls();
+    out(5, 20) << "你可以夺取敌人的一张牌：";
+    n = ecl.Size();
+    for (int i = 0; i < n; ++i) {
+        if (i % 2 == 0) pos(7 + i / 2, 5);
+        cout << i + 1 << ')';
+        DisplayCard(ecl[i]);
+        cout << '\t';
+    }
+    int choice = MakeAChoice("输入卡牌的编号,输入0跳过:", n);
+    if (choice == 0) return;
+    cls();
+    out(10, 20) << "您夺取了：";
+    pos(12, 20); DisplayCard(ecl[choice - 1]);
+    out(14, 20) << "按任意键继续...";
+    game_status.player.bag_cards.Add(ecl[choice - 1]);
+    pause();
 }
 
 void RunGame() {
@@ -52,49 +90,24 @@ void RunGame() {
         // Shopping()
         Fight();
         if (HandleResult() == 0) return;
-        while (game_status.player.hand_cards.Size()) {
-            game_status.player.bag_cards.Add(game_status.player.hand_cards[0]);
-            game_status.player.hand_cards.Remove(0);
-        }
-        game_status.enemy.hand_cards.Clear();
-        game_status.enemy.bag_cards.Clear();
+        tidy_cards(game_status.player);
+        tidy_cards(game_status.enemy);
+        GetEnemyCard();
         Shopping();
+        game_status.win_cnt++;
     }
-}
-
-void prepare_turn(player_t* p) {
-    int draw_cards_n = 2 + p->level / 2;
-    for (int i = 0; p->bag_cards.Size() && i < draw_cards_n; ++i) {
-        p->hand_cards.Add(p->bag_cards[0]);
-        p->bag_cards.Remove(0);
-    }
-    p->defense_point -= p->poison_point;
-    if (p->poison_point > 0) p->poison_point--;
-    if (p->defense_point < 0) {
-        p->health_point += p->defense_point;
-        p->defense_point = 0;
-    }
-    if (p->health_point <= 0) return;
-    p->action_point += 2 + p->level / 2;
-    p->action_point = max(p->action_point, 0);
 }
 
 void Fight() {
     // 初始化 game_status：洗牌、重置血量
     int choice;
-    const char* enemy_level_options[] = {"低一级", "相同等级", "高一级"};
-    out(10, 5) << "您的等级是" << game_status.player.level;
-    out(11, 5) << "下一步想要挑战敌人的难度是：";
-    choice = MakeAChoice(enemy_level_options, 3);
-    game_status.enemy.level = max(1, game_status.player.level + choice - 2);
-    SpawnEnemyCardBag();
-    game_status.enemy.max_hp = game_status.enemy.health_point = 
-        get_hp_by_level(game_status.enemy.level);
+    SpawnEnemy();
     game_status.player.bag_cards.Shuffle();
     game_status.enemy.bag_cards.Shuffle();
     prepare_turn(&(game_status.player));
     prepare_turn(&(game_status.enemy));
     game_status.player.action_point = game_status.enemy.action_point = 0;
+    game_status.player.defense_point = game_status.player.poison_point = 0;
     game_status.turn = 1;
     while (true) {
         player_t* p;
@@ -105,7 +118,7 @@ void Fight() {
             choice = PlayerMove();
             if (choice == 0) break;
             choice--;
-            p->bag_cards.Add(p->hand_cards[choice]);
+            p->used_cards.Add(p->hand_cards[choice]);
             p->hand_cards.Remove(choice);
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
@@ -118,7 +131,7 @@ void Fight() {
             choice = EnemyMove();
             if (choice == 0) break;
             choice--;
-            p->bag_cards.Add(p->hand_cards[choice]);
+            p->used_cards.Add(p->hand_cards[choice]);
             p->hand_cards.Remove(choice);
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
@@ -131,9 +144,13 @@ int HandleResult() {
     static int cost=20;
     int choice_rebirth;
     const char *options="复活请输入1 原地去世请输入0: ";
-    if (game_status.enemy.health_point<=0)
+    if (game_status.enemy.health_point<=0){
+        game_status.money += game_status.enemy.level * 5 + 5;
         return 6;
+    }
     else if (game_status.player.health_point<=0){
+        cls();
+        pos(15, 20);
         if (game_status.money<cost) {
             cout<<"穷光蛋，你输了！！！"<<endl;
             return 0;
@@ -141,22 +158,17 @@ int HandleResult() {
         else {
             cout << "所需要的金币为：" << cost <<"你拥有的金币为" << game_status.money;
             choice_rebirth=MakeAChoice(options,1);
-            
             if (choice_rebirth==0) {
                 cout <<"你输了！！！"<<endl;
                  return 0;
             }
             if (choice_rebirth==1) {
-                cls();
-                cout <<"按任意键继续游戏"<<endl; 
-                pause();
                 game_status.player.health_point=get_hp_by_level(game_status.player.level);
                 game_status.money-=cost;
                 cost*=2;
                 return 1;
             }
         }
-        
     }
     // 看看谁的血量<=0
     // 使用一定金币复活
@@ -166,66 +178,120 @@ int HandleResult() {
 
 void Shopping() {
     // 随机三张卡牌/升级
+    static int ope_card_cost[2] = {10, 10};
     card_t Ncard[3];
+    int card_cost[3];
+    bool bought[6] = {0};
     player_t& player = game_status.player;
-    cls();
-    for (int i = 0; i <= 2; i++) {
-        Ncard[i] = GetNewCard((rand() % 10), player.level);
-        cout << get_card_name(Ncard[i].type) << " 卡牌的值:" << Ncard[i].value << " 卡牌消耗的行动点:" << Ncard[i].ap_cost << endl;
-    }
-    const char* choices[5] = { "不选择","购买卡牌一(花5块钱)","购买卡牌二(花6块钱)","购买卡牌三(花7块钱)","等级+1(花6块钱)" };
-    int choice_flag[5] = { 5,1,1,1,1 };
-    int flag0 = 0;
-    while (1) {
-        cout << "你要买什么:";
-        int choiceNcard0 = MakeAChoice(choices, 4);
-        switch (choiceNcard0) {
-        case 0:
-            if (choice_flag[choiceNcard0] > 0) {
-                flag0 = 1; choice_flag[choiceNcard0]--;
-            }
-            else { break; }
-            break;
-        case 1:
-            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 5) {
-                player.bag_cards.Add(Ncard[0]); game_status.money -= 5; choice_flag[choiceNcard0]--;
-            }
-            else { break; }
-            break;
-        case 2:
-            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 6) {
-                player.bag_cards.Add(Ncard[1]); game_status.money -= 6; choice_flag[choiceNcard0]--;
-            }
-            else { break; }
-            break;
-        case 3:
-            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 7) {
-                player.bag_cards.Add(Ncard[2]); game_status.money -= 7; choice_flag[choiceNcard0]--;
-            }
-            else { break; }
-            break;
-        case 4:
-            if (choice_flag[choiceNcard0] > 0 && game_status.money >= 6) {
-                player.level++; game_status.money -= 6; choice_flag[choiceNcard0]--;
-            }
-            else { break; }
-            break;
-        default: break;
+    int choice, n;
+    Ncard[0] = GetNewCard(rand() % 3 + 1, player.level);
+    Ncard[1] = GetNewCard(rand() % 3 + 4, player.level);
+    Ncard[2] = GetNewCard(rand() % 3 + 7, player.level);
+    card_cost[0] = 5 + 5 * (player.level) / 2;
+    card_cost[1] = 10 + 5 * (player.level) / 2;
+    card_cost[2] = 15 + 5 * (player.level) / 2;
+    while (true) {
+        cls();
+        out(5, 5) << "你遇到了小贩，他开出的条件是：";
+        out(7, 10) << "1) "; DisplayCard(Ncard[0]); cout << "\t花费:" << card_cost[0];
+        out(8, 10) << "2) "; DisplayCard(Ncard[1]); cout << "\t花费:" << card_cost[1];
+        out(9, 10) << "3) "; DisplayCard(Ncard[2]); cout << "\t花费:" << card_cost[2];
+        out(10, 10) << "4) 角色升一级\t花费:" << player.level * 5;
+        out(11, 10) << "5) 删除一张卡牌\t花费:" << ope_card_cost[0];
+        out(12, 10) << "6) 升级一张卡牌\t花费:" << ope_card_cost[1];
+        out(14, 5) << "你现在拥有的金币数: " << yellow << game_status.money << white;
+        choice = MakeAChoice("输入数字以选择,输入0离开商店:", 6);
+        if (choice == 0) return;
+        if (choice == '#') {
+            game_status.money += 100;
+            continue;
         }
-        if (flag0 == 1) { break; }
+        if (choice == 5 || choice == 6) {
+            cls();
+            out(5, 5) << "你的牌包如下,升级需要" << ope_card_cost[1] << ",删除需要" << ope_card_cost[0];
+            n = player.bag_cards.Size();
+            for (int i = 0; i < n; ++i) {
+                if (i % 2 == 0) pos(7 + i / 2, 5);
+                cout << i + 1 << ')';
+                DisplayCard(player.bag_cards[i]);
+                cout << '\t';
+            }
+            choice -= 5;
+            int choice2 = MakeAChoice((choice == 0) ? "输入要删除的卡牌编号,0退出:" : "输入要升级的卡牌编号,0退出:", n);
+            if (choice2 == 0) continue;
+            if (game_status.money < ope_card_cost[choice]) {
+                out(0, 0) << red << "金币不足!" << white;
+                pause();
+                continue;
+            }
+            choice2--;
+            game_status.money -= ope_card_cost[choice];
+            ope_card_cost[choice] += 2;
+            cls();
+            out(15, 10) << ((choice == 0) ? ("您移除了:") : ("您升级了:")); 
+            DisplayCard(player.bag_cards[choice2]);
+            pause();
+            if (choice == 5) {
+                player.bag_cards.Remove(choice2);
+            }
+            else {
+                player.bag_cards[choice2] = 
+                    GetNewCard(player.bag_cards[choice2].type, player.level);
+            }
+        }
+        else {
+            if (bought[choice]) {
+                out(0, 0) << red << "已经购买过这项物品!" <<white;
+                pause();
+                continue;
+            }
+            bought[choice] = true;
+            choice--;
+            switch (choice) {
+            case 0: case 1: case 2:
+                if (game_status.money < card_cost[choice]) {
+                    out(0, 0) << red << "金币不足!" << white;
+                    pause();
+                    break;
+                }
+                game_status.money -= card_cost[choice];
+                cls();
+                out(15, 10) << "您购买了:"; 
+                DisplayCard(Ncard[choice]);
+                pause();
+                player.bag_cards.Add(Ncard[choice]);
+                break;
+            case 3:
+                if (game_status.money < player.level * 5) {
+                    out(0, 0) << red << "金币不足!" << white;
+                    pause();
+                    break;
+                }
+                game_status.money -= player.level * 5;
+                player.level++;
+                player.health_point = player.max_hp = get_hp_by_level(player.level);
+                cls();
+                out(15, 10) << "您升级了！"; 
+                pause();
+                break;
+            }
+        }
     }
 }
 
 int PlayerMove() {
-    const char*player_choice="输入你想打出的牌,输入0结束出牌";
     int choice,n=game_status.player.hand_cards.Size();
     DisplayInfo(game_status);
     while (true) {
-        choice=MakeAChoice (player_choice,n);
+        choice=MakeAChoice ("输入你想打出的牌,输入0结束出牌",n);
         if (choice==0) return 0;
+        else if (choice == '#') {
+            game_status.enemy.health_point = 0;
+            return 0;
+        }
         if (game_status.player.hand_cards[choice - 1].ap_cost <= game_status.player.action_point)
             break;
-        out(0, 0) << "行动力不足!";
+        out(0, 0) << red << "行动力不足!" << white;
     }
     DisplayPlayerMove(game_status.player.hand_cards[choice - 1].type);
     PlayCard(game_status.player.hand_cards[choice -1],game_status.player , game_status.enemy) ;

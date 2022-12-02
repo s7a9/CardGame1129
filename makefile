@@ -1,4 +1,4 @@
-all: cards cardactions gamecontrol gameio gameutilities entry clean
+all: cards cardactions gamecontrol gameio gameutilities playerdef entry clean
 
 cards:
 	g++ -o ./tmp/Cards.o -c ./code/src/Cards.cpp -I ./code/header
@@ -14,6 +14,9 @@ gameio:
 
 gameutilities:
 	g++ -o ./tmp/GameUtilities.o -c ./code/src/GameUtilities.cpp -I ./code/header
+
+playerdef:
+	g++ -o ./tmp/PlayerDef.o -c ./code/src/PlayerDef.cpp -I ./code/header
 
 entry:
 	g++ -o ./bin/cardgame.exe -I ./code/header ./code/src/entry.cpp ./tmp/*

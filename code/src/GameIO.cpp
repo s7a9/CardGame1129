@@ -16,7 +16,8 @@ void DisplayInfo(game_status_t& game_status) {
 
 void DisplayPlayerInfo(player_t& info) {
     // 打印血量、手牌等等战斗信息
-    out(5,5)<<"急着打败魔王就回老家结婚的勇者";
+    out(4,5)<<"急着打败魔王就回老家结婚的勇者";
+    out(5, 10) << "牌库剩余:" << info.bag_cards.Size();
     int i, t;
     out(6,5)<<white<<"level"<<info.level<<".";
     out(7,5)<<red<<"血量"<<white<<info.health_point<<'/'<<info.max_hp;
@@ -31,8 +32,7 @@ void DisplayPlayerInfo(player_t& info) {
     int n = info.hand_cards.Size();
     cout<<endl<<endl;
     for(int i=0;i<n;i++){
-        card_t& card = info.hand_cards[i];
-        cout<<"卡牌"<<i+1<<':';
+        cout << "卡牌" << i + 1 << ':';
         DisplayCard(info.hand_cards[i]);
         cout << endl;
     }
@@ -40,7 +40,8 @@ void DisplayPlayerInfo(player_t& info) {
 
 void DisplayEnemyInfo(player_t& info) {
     // 打印血量、手牌等等战斗信息
-    out(5,65)<<"没钱随份子所以要全力阻止勇者的魔王";
+    out(4,65)<<"没钱随份子所以要全力阻止勇者的魔王";
+    out(5, 70) << "牌库剩余:" << info.bag_cards.Size();
     int i,t;
     out(6,65)<<white<<"level"<<info.level<<".";
     out(7,65)<<red<<"血量"<<white<<info.health_point<<'/'<<info.max_hp;
@@ -63,7 +64,7 @@ int MakeAChoice(const char* options[], int n_choice) {
     // 让用户选择
     int n=n_choice;
     int i=0;
-    pos(25,5);
+    pos(20,5);
     for(i=0;n-i>0;){
         for(int j=0;j<4&&n>i;j++,i++){
             cout<<(char)('A'+i)<<": "<<options[i];
@@ -78,6 +79,7 @@ int MakeAChoice(const char* options[], int n_choice) {
         if (isalpha(ch)) {
             ch = toupper(ch);
             if (ch == '@') exit(0);
+            if (ch == '#') return ch;
             if (ch - 'A' < n_choice) {
                 cout << endl << "您的选择是" << ch << ":" << options[ch-'A'] << ",按任意键继续...";
                 pause();
@@ -95,14 +97,15 @@ int MakeAChoice(const char* hint, int n_choice) {
     cout<<hint;
     int n;
     while(1){
-        n = pause() - '0';
-        if (n == '@' - '0') exit(0);
+        n = pause();
+        if (n == '@') exit(0);
+        if (n == '#') return n;
+        n -= '0';
         if(n >= 0 && n <= n_choice)break;
         else cout<<"请输入0到"<<n_choice<<"之间的数字!"<<endl;
     }
     return n;
 }
-
 
 void DisplayPlayerMove(int type) {
     cls();
@@ -138,7 +141,7 @@ void DisplayEnemyMove(int type) {
         case 5:cout<<white<<"对方的生命值恢复了！";break;
         case 6:cout<<white<<"对方的负面效果被清除！";break;
         case 7:cout<<white<<"对方收获了新的卡牌！";break;
-        case 8:cout<<white<<"对方偷盗了对方的卡牌！";break;
+        case 8:cout<<white<<"对方偷盗了你的卡牌！";break;
         case 9:cout<<white<<"您感到疲惫！";break;
     }
 }
