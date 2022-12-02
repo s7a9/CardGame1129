@@ -13,10 +13,8 @@ void draw_a_card(player_t* p) {
             p->hand_cards.Add(Card(ct_attack, 
                 p->used_cards.Size() * p->gift_level[gift_lasthit], -1));
         }
-        while (p->used_cards.Size()) {
-            p->bag_cards.Add(p->used_cards[0]);
-            p->used_cards.Remove(0);
-        }
+        p->bag_cards.AddCards(p->used_cards);
+        p->used_cards.Clear();
         p->bag_cards.Shuffle();
     }
 }
@@ -41,14 +39,10 @@ void prepare_turn(player_t* p) {
 }
 
 void tidy_cards(player_t& p) {
-    while (p.hand_cards.Size()) {
-        p.bag_cards.Add(p.hand_cards[0]);
-        p.hand_cards.Remove(0);
-    }
-    while (p.used_cards.Size()) {
-        p.bag_cards.Add(p.used_cards[0]);
-        p.used_cards.Remove(0);
-    }
+    p.bag_cards.AddCards(p.hand_cards);
+    p.bag_cards.AddCards(p.used_cards);
+    p.hand_cards.Clear();
+    p.used_cards.Clear();
 }
 
 const char* get_gift_name(int i) {

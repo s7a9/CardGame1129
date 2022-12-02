@@ -28,7 +28,7 @@ public:
     void Add(card_t item); 
 
     // 加入多张牌到牌堆最后
-    void AddCards(card_t items[], int n);
+    void AddCards(CardList& list);
 
     // 删除指定下标的一张牌
     void Remove(int index); 

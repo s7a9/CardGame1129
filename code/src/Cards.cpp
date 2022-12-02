@@ -11,8 +11,8 @@ const char* card_type_names[] = {
     "穿刺",
     "回复",
     "净化",
-    "无中生有",
-    "顺手牵羊",
+    "智谋",
+    "偷窃",
     "疲劳",
 };
 
@@ -28,9 +28,10 @@ void CardList::Add(card_t item) {
     cards.push_back(item);
 }
 
-void CardList::AddCards(card_t items[], int n) {
+void CardList::AddCards(CardList& list) {
+    int n = list.Size();
     for (int i = 0; i < n; i++) {
-        cards.push_back(items[i]);
+        cards.push_back(list[i]);
     }
 }
 

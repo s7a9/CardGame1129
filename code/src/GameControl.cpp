@@ -7,9 +7,9 @@ using namespace std;
 game_status_t game_status;
 
 const card_t player_inital_cards[] = {
-    {ct_attack, 2, 0}, {ct_attack, 2, 0}, {ct_attack, 2, 0}, 
-    {ct_defense, 2, 1}, {ct_poison, 2, 1}, {ct_pierce, 2, 2},
-    {ct_heal, 2, 1}, {ct_putrefy, 0, 2}
+    {ct_attack, 3, 0}, {ct_attack, 3, 0}, {ct_attack, 3, 0}, 
+    {ct_defense, 3, 1}, {ct_poison, 3, 1}, {ct_pierce, 2, 2},
+    {ct_heal, 3, 1}, {ct_putrefy, 0, 2}, {ct_fatigue, 3, 1},
 };
 
 const size_t player_inital_cards_n = sizeof(player_inital_cards) / sizeof(card_t);
@@ -41,7 +41,8 @@ inline void SpawnEnemy() {
     choice = MakeAChoice(enemy_level_options, 3);
     game_status.enemy.level = max(1, game_status.player.level + choice - 2);
     for (int i = 0; i < n; i++) {
-        game_status.enemy.bag_cards.Add(game_status.player.bag_cards[i]);
+        game_status.enemy.bag_cards.Add(GetNewCard(game_status.player.bag_cards[i].type,
+            game_status.enemy.level));
     }
     game_status.enemy.max_hp = game_status.enemy.health_point = 
         get_hp_by_level(game_status.enemy.level);
@@ -52,15 +53,10 @@ inline void SpawnEnemy() {
 // 夺取电脑卡牌
 void GetEnemyCard() {
     CardList& ecl = game_status.enemy.bag_cards;
-    int n = game_status.enemy.hand_cards.Size();
-    while (n--) {
-        ecl.Add(game_status.enemy.hand_cards[0]);
-        game_status.enemy.hand_cards.Remove(0);
-    }
     if (ecl.Size() == 0) return;
     cls();
-    out(5, 20) << "你可以夺取敌人的一张牌：";
-    n = ecl.Size();
+    out(5, 10) << "你已经战胜敌人，可以夺取一张牌：";
+    int n = ecl.Size();
     for (int i = 0; i < n; ++i) {
         if (i % 2 == 0) pos(7 + i / 2, 5);
         cout << i + 1 << ')';
@@ -110,6 +106,7 @@ void Fight() {
     draw_a_card(&game_status.enemy); draw_a_card(&game_status.enemy);
     game_status.player.defense_point = game_status.player.poison_point = 0;
     game_status.player.action_point = game_status.enemy.action_point = 0;
+    game_status.player.health_point = game_status.player.max_hp;
     while (true) {
         player_t* p;
         // 玩家回合 发牌、计算效果
@@ -125,7 +122,7 @@ void Fight() {
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
-        p->action_point = 0;
+        p->action_point = p->action_point = 0;
         // 电脑回合 发牌、计算效果
         prepare_turn(p = &(game_status.enemy));
         if (p->health_point <= 0) return;
@@ -139,7 +136,7 @@ void Fight() {
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
-        p->action_point = 0;
+        p->action_point = p->action_point = 0;
     }
 }
 
@@ -148,7 +145,7 @@ int HandleResult() {
     int choice_rebirth;
     const char *options="复活请输入1 原地去世请输入0: ";
     if (game_status.enemy.health_point<=0){
-        game_status.money += game_status.enemy.level * 10 + 10;
+        game_status.money += game_status.enemy.level * 10 + 20;
         return 6;
     }
     else if (game_status.player.health_point<=0){
@@ -305,7 +302,7 @@ int PlayerMove() {
     int choice,n=game_status.player.hand_cards.Size();
     DisplayInfo(game_status);
     while (true) {
-        choice=MakeAChoice ("输入你想打出的牌,输入0结束出牌",n);
+        choice=MakeAChoice ("输入你想打出的牌,输入0结束出牌,回车确认:",n);
         if (choice==0) return 0;
         else if (choice == '#') {
             game_status.enemy.health_point = 0;
@@ -327,6 +324,8 @@ int EnemyMove() {
     if (n == 0) return 0;
     for (int i = 0; i < n; ++i) {
         if (enemy.hand_cards[i].ap_cost <= enemy.action_point) {
+            out(24, 5) << "敌人出牌: ";
+            DisplayCard(enemy.hand_cards[i]);
             PlayCard(game_status.enemy.hand_cards[i], game_status.enemy, game_status.player);
             DisplayEnemyMove(game_status.enemy.hand_cards[i].type);
             pause();

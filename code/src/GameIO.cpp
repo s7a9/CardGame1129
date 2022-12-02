@@ -97,12 +97,11 @@ int MakeAChoice(const char* hint, int n_choice) {
     cout<<hint;
     int n;
     while(1){
-        n = pause();
-        if (n == '@') exit(0);
-        if (n == '#') return n;
-        n -= '0';
-        if(n >= 0 && n <= n_choice)break;
-        else cout<<"请输入0到"<<n_choice<<"之间的数字!"<<endl;
+        cin >> n;
+        if (n == -1) exit(0);
+        if (n == 114514) return '#';
+        if (n >= 0 && n <= n_choice) break;
+        else cout << "请输入0到" << n_choice << "之间的数字,回车确认!" << endl;
     }
     return n;
 }
