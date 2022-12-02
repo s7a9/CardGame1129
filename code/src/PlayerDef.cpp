@@ -9,6 +9,10 @@ void draw_a_card(player_t* p) {
         p->bag_cards.Remove(0);
     }
     else {
+        if (p->gift_level[gift_lasthit]) {
+            p->hand_cards.Add(Card(ct_attack, 
+                p->used_cards.Size() * p->gift_level[gift_lasthit], -1));
+        }
         while (p->used_cards.Size()) {
             p->bag_cards.Add(p->used_cards[0]);
             p->used_cards.Remove(0);
@@ -19,6 +23,9 @@ void draw_a_card(player_t* p) {
 
 void prepare_turn(player_t* p) {
     int draw_cards_n = 2 + p->level / 2;
+    if (p->gift_level[gift_autodefense]) {
+        p->defense_point += p->gift_level[gift_autodefense];
+    }
     for (int i = 0; i < draw_cards_n; ++i) {
         draw_a_card(p);
     }
@@ -42,4 +49,12 @@ void tidy_cards(player_t& p) {
         p.bag_cards.Add(p.used_cards[0]);
         p.used_cards.Remove(0);
     }
+}
+
+const char* get_gift_name(int i) {
+    const char* gift_names[] = {
+        "竭力一击",
+        "生长护盾",
+    };
+    return gift_names[i];
 }

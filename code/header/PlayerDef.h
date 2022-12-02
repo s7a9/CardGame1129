@@ -3,7 +3,9 @@
 
 #include "Cards.h"
 
-#define gift_drawallcards 0
+const int gift_n = 2;
+#define gift_lasthit 0   // 竭力一击
+#define gift_autodefense 1 // 生长护盾
 
 // 打牌者结构体
 struct player_t {
@@ -13,7 +15,7 @@ struct player_t {
     int poison_point; // 毒性
     int defense_point; // 盾
     int level; // 等级
-    int gift_level[3]; // 天赋等级
+    int gift_level[gift_n]; // 天赋等级
     CardList hand_cards; // 手牌数组
     CardList bag_cards; // 牌库数组
     CardList used_cards; // 使用过的牌堆
@@ -32,5 +34,7 @@ void draw_a_card(player_t* p);
 void prepare_turn(player_t* p);
 
 void tidy_cards(player_t& p);
+
+const char* get_gift_name(int i);
 
 #endif //PLAYERDEF_H

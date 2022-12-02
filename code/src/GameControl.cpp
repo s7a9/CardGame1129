@@ -46,6 +46,7 @@ inline void SpawnEnemy() {
     game_status.enemy.max_hp = game_status.enemy.health_point = 
         get_hp_by_level(game_status.enemy.level);
     game_status.enemy.poison_point = game_status.enemy.defense_point = 0;
+    game_status.enemy.action_point = 0;
 }
 
 // 夺取电脑卡牌
@@ -104,11 +105,11 @@ void Fight() {
     SpawnEnemy();
     game_status.player.bag_cards.Shuffle();
     game_status.enemy.bag_cards.Shuffle();
-    prepare_turn(&(game_status.player));
-    prepare_turn(&(game_status.enemy));
-    game_status.player.action_point = game_status.enemy.action_point = 0;
-    game_status.player.defense_point = game_status.player.poison_point = 0;
     game_status.turn = 1;
+    draw_a_card(&game_status.player); draw_a_card(&game_status.player);
+    draw_a_card(&game_status.enemy); draw_a_card(&game_status.enemy);
+    game_status.player.defense_point = game_status.player.poison_point = 0;
+    game_status.player.action_point = game_status.enemy.action_point = 0;
     while (true) {
         player_t* p;
         // 玩家回合 发牌、计算效果
@@ -118,7 +119,8 @@ void Fight() {
             choice = PlayerMove();
             if (choice == 0) break;
             choice--;
-            p->used_cards.Add(p->hand_cards[choice]);
+            if (p->hand_cards[choice].ap_cost >= 0)
+                p->used_cards.Add(p->hand_cards[choice]);
             p->hand_cards.Remove(choice);
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
@@ -131,7 +133,8 @@ void Fight() {
             choice = EnemyMove();
             if (choice == 0) break;
             choice--;
-            p->used_cards.Add(p->hand_cards[choice]);
+            if (p->hand_cards[choice].ap_cost >= 0)
+                p->used_cards.Add(p->hand_cards[choice]);
             p->hand_cards.Remove(choice);
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
@@ -145,7 +148,7 @@ int HandleResult() {
     int choice_rebirth;
     const char *options="复活请输入1 原地去世请输入0: ";
     if (game_status.enemy.health_point<=0){
-        game_status.money += game_status.enemy.level * 5 + 5;
+        game_status.money += game_status.enemy.level * 10 + 10;
         return 6;
     }
     else if (game_status.player.health_point<=0){
@@ -178,10 +181,10 @@ int HandleResult() {
 
 void Shopping() {
     // 随机三张卡牌/升级
-    static int ope_card_cost[2] = {10, 10};
+    static int ope_card_cost[3] = {2, 2, 20};
     card_t Ncard[3];
     int card_cost[3];
-    bool bought[6] = {0};
+    bool bought[10] = {0};
     player_t& player = game_status.player;
     int choice, n;
     Ncard[0] = GetNewCard(rand() % 3 + 1, player.level);
@@ -190,6 +193,7 @@ void Shopping() {
     card_cost[0] = 5 + 5 * (player.level) / 2;
     card_cost[1] = 10 + 5 * (player.level) / 2;
     card_cost[2] = 15 + 5 * (player.level) / 2;
+    int gift_opt = rand() % gift_n;
     while (true) {
         cls();
         out(5, 5) << "你遇到了小贩，他开出的条件是：";
@@ -199,8 +203,11 @@ void Shopping() {
         out(10, 10) << "4) 角色升一级\t花费:" << player.level * 5;
         out(11, 10) << "5) 删除一张卡牌\t花费:" << ope_card_cost[0];
         out(12, 10) << "6) 升级一张卡牌\t花费:" << ope_card_cost[1];
-        out(14, 5) << "你现在拥有的金币数: " << yellow << game_status.money << white;
-        choice = MakeAChoice("输入数字以选择,输入0离开商店:", 6);
+        out(13, 10) << "7) 升级天赋: " << get_gift_name(gift_opt) << " Lv." <<
+            player.gift_level[gift_opt] << "->Lv." << player.gift_level[gift_opt] + 1 <<
+            "\t花费:" << ope_card_cost[2];
+        out(15, 5) << "你现在拥有的金币数: " << yellow << game_status.money << white;
+        choice = MakeAChoice("输入数字以选择,输入0离开商店:", 7);
         if (choice == 0) return;
         if (choice == '#') {
             game_status.money += 100;
@@ -228,16 +235,17 @@ void Shopping() {
             game_status.money -= ope_card_cost[choice];
             ope_card_cost[choice] += 2;
             cls();
-            out(15, 10) << ((choice == 0) ? ("您移除了:") : ("您升级了:")); 
-            DisplayCard(player.bag_cards[choice2]);
-            pause();
-            if (choice == 5) {
+            out(15, 10) << ((choice == 0) ? ("您移除了:") : ("卡牌升级为:")); 
+            if (choice == 0) {
+                DisplayCard(player.bag_cards[choice2]);
                 player.bag_cards.Remove(choice2);
             }
             else {
                 player.bag_cards[choice2] = 
                     GetNewCard(player.bag_cards[choice2].type, player.level);
+                DisplayCard(player.bag_cards[choice2]);
             }
+            pause();
         }
         else {
             if (bought[choice]) {
@@ -248,7 +256,7 @@ void Shopping() {
             bought[choice] = true;
             choice--;
             switch (choice) {
-            case 0: case 1: case 2:
+            case 0: case 1: case 2: // 买卡
                 if (game_status.money < card_cost[choice]) {
                     out(0, 0) << red << "金币不足!" << white;
                     pause();
@@ -261,7 +269,7 @@ void Shopping() {
                 pause();
                 player.bag_cards.Add(Ncard[choice]);
                 break;
-            case 3:
+            case 3: // 升级
                 if (game_status.money < player.level * 5) {
                     out(0, 0) << red << "金币不足!" << white;
                     pause();
@@ -272,6 +280,20 @@ void Shopping() {
                 player.health_point = player.max_hp = get_hp_by_level(player.level);
                 cls();
                 out(15, 10) << "您升级了！"; 
+                pause();
+                break;
+            case 6: // 天赋
+                if (game_status.money < ope_card_cost[2]) {
+                    out(0, 0) << red << "金币不足!" << white;
+                    pause();
+                    break;
+                }
+                game_status.money -= ope_card_cost[2];
+                player.gift_level[gift_opt]++;
+                ope_card_cost[2] += 10;
+                cls();
+                out(15, 10) << "天赋 " << get_gift_name(gift_opt) << 
+                    " 升级为Lv." << player.gift_level[gift_opt];
                 pause();
                 break;
             }
