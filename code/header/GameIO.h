@@ -22,4 +22,13 @@ int MakeAChoice(const char* options[], int n_choice);
 // n_choice：选项的个数
 int MakeAChoice(const char* hint, int n_choice);
 
+// 展示玩家操作
+void DisplayPlayerMove(int type);
+
+// 展示电脑操作
+void DisplayEnemyMove(int type);
+
+// 展示一张牌
+void DisplayCard(card_t& card);
+
 #endif //GAMEIO_H

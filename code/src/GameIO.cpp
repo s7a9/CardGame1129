@@ -32,9 +32,9 @@ void DisplayPlayerInfo(player_t& info) {
     cout<<endl<<endl;
     for(int i=0;i<n;i++){
         card_t& card = info.hand_cards[i];
-        cout<<"卡牌"<<i+1<<":"<<get_card_name(card.type);
-        cout<<"\t卡牌效能"<<card.value<<"🗡️";
-        cout<<"\t卡牌消耗"<<card.ap_cost<<"💪"<<endl;
+        cout<<"卡牌"<<i+1<<':';
+        DisplayCard(info.hand_cards[i]);
+        cout << endl;
     }
 }
 
@@ -81,7 +81,7 @@ int MakeAChoice(const char* options[], int n_choice) {
             if (ch - 'A' < n_choice) {
                 cout << endl << "您的选择是" << ch << ":" << options[ch-'A'] << ",按任意键继续...";
                 pause();
-                return ch - 'A';
+                return ch - 'A' + 1;
             }
         }
         cout << endl <<"您的选择不存在！请重新选择:";
@@ -101,4 +101,49 @@ int MakeAChoice(const char* hint, int n_choice) {
         else cout<<"请输入0到"<<n_choice<<"之间的数字!"<<endl;
     }
     return n;
+}
+
+
+void DisplayPlayerMove(int type) {
+    cls();
+    pos(10,45);
+    switch (type)
+    {
+        case 1:cout<<red<<"接好了，这是我全力的一击！"<<endl<<white<<"对方受到了攻击！";break;
+        case 2:cout<<yellow<<"你是不会懂的，我们彼此守护的力量！"<<endl<<white<<"您的护盾增加了！";break;
+        case 3:cout<<green<<"沾染上吧，这是我一路走来背负的罪恶啊。。。"<<endl<<white<<"对方中毒了！";break;
+        case 4:{cout<<white<<"我啊，曾经也是一个人的盾牌呢";
+            out(11,45)<<"可是啊，要是当时我守护住了就好了";
+            out(12,45)<<red<<"轮到你来尝尝了，那种用尽全力却无法守护的痛啊啊啊啊"<<endl<<white<<"对方受到了穿刺攻击！";break;}
+        case 5:cout<<pink<<"原来你一直在我身边治愈我啊，吾爱"<<endl<<white<<"您的生命值恢复了！";break;
+        case 6:cout<<blue<<"圣光啊，洗涤我身上的不详吧"<<endl<<white<<"您的负面效果被清除！";break;
+        case 7:cout<<yellow<<"言已至此，【made in heaven】"<<endl<<white<<"您收获了新的卡牌！";break;
+        case 8:cout<<green<<"你想到过被自己的力量伤害的一天吗？"<<endl<<white<<"您偷盗了对方的卡牌！";break;
+        case 9:cout<<blue<<"别硬撑了，你其实很疲惫了吧"<<endl<<white<<"对方受到了疲惫！";break;
+    }
+    out(15,5) << "任意键继续:";
+    pause();
+}
+
+void DisplayEnemyMove(int type) {
+    pos(25, 5);
+    cout << "                                ";
+    pos(25, 5);
+    switch (type)  
+    {
+        case 1:cout<<white<<"您受到了攻击！";break;
+        case 2:cout<<white<<"对方的护盾增加了！";break;
+        case 3:cout<<white<<"您中毒了！";break;
+        case 4:cout<<white<<"您受到了穿刺攻击！";break;
+        case 5:cout<<white<<"对方的生命值恢复了！";break;
+        case 6:cout<<white<<"对方的负面效果被清除！";break;
+        case 7:cout<<white<<"对方收获了新的卡牌！";break;
+        case 8:cout<<white<<"对方偷盗了对方的卡牌！";break;
+        case 9:cout<<white<<"您感到疲惫！";break;
+    }
+}
+
+void DisplayCard(card_t& card) {
+    cout << get_card_name(card.type) << "\t卡牌效能" << card.value << "🗡️"
+        << "\t卡牌消耗" << card.ap_cost << "💪";
 }

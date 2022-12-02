@@ -52,6 +52,12 @@ void RunGame() {
         // Shopping()
         Fight();
         if (HandleResult() == 0) return;
+        while (game_status.player.hand_cards.Size()) {
+            game_status.player.bag_cards.Add(game_status.player.hand_cards[0]);
+            game_status.player.hand_cards.Remove(0);
+        }
+        game_status.enemy.hand_cards.Clear();
+        game_status.enemy.bag_cards.Clear();
         Shopping();
     }
 }
@@ -114,7 +120,6 @@ void Fight() {
             choice--;
             p->bag_cards.Add(p->hand_cards[choice]);
             p->hand_cards.Remove(choice);
-            pause();
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
@@ -161,10 +166,9 @@ int HandleResult() {
 
 void Shopping() {
     // 随机三张卡牌/升级
-
     card_t Ncard[3];
     player_t& player = game_status.player;
-    srand((unsigned)time(NULL));
+    cls();
     for (int i = 0; i <= 2; i++) {
         Ncard[i] = GetNewCard((rand() % 10), player.level);
         cout << get_card_name(Ncard[i].type) << " 卡牌的值:" << Ncard[i].value << " 卡牌消耗的行动点:" << Ncard[i].ap_cost << endl;
@@ -223,25 +227,7 @@ int PlayerMove() {
             break;
         out(0, 0) << "行动力不足!";
     }
-    int w=game_status.player.hand_cards[choice - 1].type;
-    cls();
-    pos(10,45);
-    switch (w)  
-    {
-        case 1:cout<<red<<"接好了，这是我全力的一击！"<<endl<<white<<"对方受到了攻击！";break;
-        case 2:cout<<yellow<<"你是不会懂的，我们彼此守护的力量！"<<endl<<white<<"您的护盾增加了！";break;
-        case 3:cout<<green<<"沾染上吧，这是我一路走来背负的罪恶啊。。。"<<endl<<white<<"对方中毒了！";break;
-        case 4:{cout<<white<<"我啊，曾经也是一个人的盾牌呢";
-            out(11,45)<<"可是啊，要是当时我守护住了就好了";
-            out(12,45)<<red<<"轮到你来尝尝了，那种用尽全力却无法守护的痛啊啊啊啊"<<endl<<white<<"对方受到了穿刺攻击！";break;}
-        case 5:cout<<pink<<"原来你一直在我身边治愈我啊，吾爱"<<endl<<white<<"您的生命值恢复了！";break;
-        case 6:cout<<blue<<"圣光啊，洗涤我身上的不详吧"<<endl<<white<<"您的负面效果被清除！";break;
-        case 7:cout<<yellow<<"言已至此，【made in heaven】"<<endl<<white<<"您收获了新的卡牌！";break;
-        case 8:cout<<green<<"你想到过被自己的力量伤害的一天吗？"<<endl<<white<<"您偷盗了对方的卡牌！";break;
-        case 9:cout<<blue<<"别硬撑了，你其实很疲惫了吧"<<endl<<white<<"对方受到了疲惫！";break;
-    }
-    out(15,5) << "任意键继续:";
-    pause();
+    DisplayPlayerMove(game_status.player.hand_cards[choice - 1].type);
     PlayCard(game_status.player.hand_cards[choice -1],game_status.player , game_status.enemy) ;
     return choice;
 }
@@ -254,20 +240,9 @@ int EnemyMove() {
     for (int i = 0; i < n; ++i) {
         if (enemy.hand_cards[i].ap_cost <= enemy.action_point) {
             PlayCard(game_status.enemy.hand_cards[i], game_status.enemy, game_status.player);
+            DisplayEnemyMove(game_status.enemy.hand_cards[i].type);
+            pause();
             DisplayInfo(game_status);
-            pos(25, 5);
-            switch (game_status.enemy.hand_cards[i].type)  
-            {
-                case 1:cout<<white<<"您受到了攻击！";break;
-                case 2:cout<<white<<"对方的护盾增加了！";break;
-                case 3:cout<<white<<"您中毒了！";break;
-                case 4:cout<<white<<"您受到了穿刺攻击！";break;
-                case 5:cout<<white<<"对方的生命值恢复了！";break;
-                case 6:cout<<white<<"对方的负面效果被清除！";break;
-                case 7:cout<<white<<"对方收获了新的卡牌！";break;
-                case 8:cout<<white<<"对方偷盗了对方的卡牌！";break;
-                case 9:cout<<white<<"您感到疲惫！";break;
-            }
             return i + 1;
         }
     }
