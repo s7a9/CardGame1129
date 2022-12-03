@@ -27,7 +27,10 @@ card_t GetNewCard(int type, int level) {
     const int type_ap_cost[] = {0, 1, 1, 2, 2, 1, 2, 2, 2, 2};
     // 每种卡牌对应的基础值
     const int type_basic_value[] = {0, 3, 1, 2, 2, 2, 0, 1, 1, 0};
-    return Card(type, type_basic_value[type] + level, type_ap_cost[type]);
+    if (type != ct_spawn)
+        return Card(type, type_basic_value[type] + level, type_ap_cost[type]);
+    else
+        return Card(type, type_basic_value[type] + level / 3, type_ap_cost[type]);
 }
 
 // 生成电脑，暂定复制玩家的牌组
