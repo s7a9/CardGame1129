@@ -115,6 +115,11 @@ void Fight() {
         // 玩家回合 发牌、计算效果
         prepare_turn(p = &(game_status.player));
         if (p->health_point <= 0) return;
+        if (p->gift_level[gift_vampire]) {
+            p->health_point = min(p->max_hp, p->health_point + 2 * p->gift_level[gift_vampire]);
+            game_status.enemy.health_point -= 2 * p->gift_level[gift_vampire];
+            if (game_status.enemy.health_point <= 0) return;
+        }
         while (true) { // 出牌
             choice = PlayerMove();
             if (choice == 0) break;
@@ -125,7 +130,7 @@ void Fight() {
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
-        p->action_point = p->action_point = 0;
+        p->action_point = 0;
         // 电脑回合 发牌、计算效果
         prepare_turn(p = &(game_status.enemy));
         if (p->health_point <= 0) return;
@@ -139,7 +144,7 @@ void Fight() {
             // 血量<=0寄
             if (game_status.enemy.health_point <= 0) return;
         }
-        p->action_point = p->action_point = 0;
+        p->action_point = 0;
     }
 }
 

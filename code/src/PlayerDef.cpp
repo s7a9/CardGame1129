@@ -22,7 +22,7 @@ void draw_a_card(player_t* p) {
 void prepare_turn(player_t* p) {
     int draw_cards_n = 2 + p->level / 2;
     if (p->gift_level[gift_autodefense]) {
-        p->defense_point += p->gift_level[gift_autodefense];
+        p->defense_point += 2 * p->gift_level[gift_autodefense];
     }
     for (int i = 0; i < draw_cards_n; ++i) {
         draw_a_card(p);
@@ -49,6 +49,7 @@ const char* get_gift_name(int i) {
     const char* gift_names[] = {
         "竭力一击",
         "生长护盾",
+        "吸血契约",
     };
     return gift_names[i];
 }

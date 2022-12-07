@@ -3,9 +3,10 @@
 
 #include "Cards.h"
 
-const int gift_n = 2;
+const int gift_n = 3;
 #define gift_lasthit 0   // 竭力一击
 #define gift_autodefense 1 // 生长护盾
+#define gift_vampire 2 // 吸血契约
 
 // 打牌者结构体
 struct player_t {
